@@ -11,6 +11,11 @@ def on_canvas_click(event):
     else:
         x, y = event.x, event.y
         eyedropper = image.getpixel((x, y))
+    if event == 'initialize':
+        eyedropper = (255, 255, 255, 255)
+    else:
+        x, y = event.x, event.y
+        eyedropper = image.getpixel((x, y))
     print('eye dropper - ', eyedropper)
     update_image(slider1.get(), slider2.get(), slider3.get())
 
@@ -26,6 +31,7 @@ def open_image(*args):
     if file_path:
         global image, photo
         image = Image.open(file_path)
+        image = image.resize(new_dimensions(image))
         image = image.resize(new_dimensions(image))
         photo = ImageTk.PhotoImage(image)
         image_label.configure(image=photo)
@@ -56,9 +62,14 @@ def save_img():
 
 def main():
 
+
     root = tk.Tk()
     root.title("Color remover")
 
+    global image_label
+    image_label = tk.Label(root)
+    image_label.grid(row=0, column=0, padx=5, pady=5)
+    open_image('welcome.png')
     global image_label
     image_label = tk.Label(root)
     image_label.grid(row=0, column=0, padx=5, pady=5)
@@ -90,6 +101,7 @@ def main():
     slider3.grid(row=5, column=0, padx=5, pady=5)
 
     # Bind the mouse click event to the canvas
+    on_canvas_click('initialize')
     on_canvas_click('initialize')
     image_label.bind("<Button-1>", on_canvas_click)
 
