@@ -1,52 +1,74 @@
 import tkinter as tk
-from tkinter import *
-
 from tkinter import filedialog
 from PIL import Image, ImageTk
 import copy
 
 
 def on_canvas_click(event):
-    x, y = event.x, event.y
     global eyedropper
-    eyedropper = image.getpixel((x, y))
+    if event == 'initialize':
+        eyedropper = (255, 255, 255, 255)
+    else:
+        x, y = event.x, event.y
+        eyedropper = image.getpixel((x, y))
     print('eye dropper - ', eyedropper)
     update_image(slider1.get(), slider2.get(), slider3.get())
-    # update_color_sliders(pixel_color)
 
 
-# def update_color_sliders(rgb_color):
-#     slider1.set(rgb_color[0])
-#     slider2.set(rgb_color[1])
-#     slider3.set(rgb_color[2])
-
-
-def open_image():
-    # file_path = filedialog.askopenfilename()
-    file_path = 'photo.png'
+def open_image(*args):
+    global file_path
+    if len(args) != 0:
+        print('welcome')
+        file_path = args[0]
+    else:
+        file_path = filedialog.askopenfilename()
+    # file_path = 'photo.png'
     if file_path:
         global image, photo
         image = Image.open(file_path)
+        image = image.resize(new_dimensions(image))
         photo = ImageTk.PhotoImage(image)
-        image_container = canvas.create_image(0, 0, anchor="nw", image=photo)
-        canvas.itemconfig(image_container, image=photo)
+        image_label.configure(image=photo)
+        image_label.image = photo
+
+
+def new_dimensions(img):
+    width = img.size[0]
+    height = img.size[1]
+    max_width, max_height = 600, 600
+    ratio = min(max_width / width, max_height / height)
+    new_width = int(width * ratio)
+    new_height = int(height * ratio)
+    return new_width, new_height
+
+
+def save_img():
+    rgba = Image.open(file_path)
+    # global new_img
+    new_img = rgba.convert("RGBA")
+    datas = new_img.getdata()
+    remove = removal_range({'color': eyedropper, 'range': [
+                           slider1.get(), slider2.get(), slider3.get()]})
+    new_img.putdata(remove_color(datas, remove))
+    file = filedialog.asksaveasfile(mode='wb', defaultextension=".png")
+    new_img.save(file)
 
 
 def main():
+
     root = tk.Tk()
     root.title("Color remover")
 
-    global canvas
-    canvas = tk.Canvas(root)
-    canvas.grid(row=0, column=0, padx=5, pady=5)
+    global image_label
+    image_label = tk.Label(root)
+    image_label.grid(row=0, column=0, padx=5, pady=5)
+    open_image('welcome.png')
 
     open_button = tk.Button(root, text="Open Image", command=open_image)
     open_button.grid(row=1, column=0, padx=5, pady=5)
-    open_image()
 
-    global image_label
-    image_label = tk.Label(root, image=photo)
-    image_label.grid(row=0, column=1, padx=5, pady=5)
+    open_button = tk.Button(root, text="Save Image", command=save_img)
+    open_button.grid(row=1, column=1, padx=5, pady=5)
 
     label2 = tk.Label(root, text="color removal range")
     label2.grid(row=2, column=0, padx=5, pady=2)
@@ -68,6 +90,7 @@ def main():
     slider3.grid(row=5, column=0, padx=5, pady=5)
 
     # Bind the mouse click event to the canvas
+    on_canvas_click('initialize')
     image_label.bind("<Button-1>", on_canvas_click)
 
     root.mainloop()
@@ -75,22 +98,19 @@ def main():
 
 def update_image(slider1_value, slider2_value, slider3_value):
     rgba = copy.deepcopy(image)
+    # global new_img
     new_img = rgba.convert("RGBA")
     datas = new_img.getdata()
-    # new_img.save("transparent_image.png", "PNG")
     remove = removal_range({'color': eyedropper, 'range': [
                            slider1_value, slider2_value, slider3_value]})
     print('remove range', remove)
     new_img.putdata(remove_color(datas, remove))
-    print("called update")
 
     new_photo = ImageTk.PhotoImage(new_img)
 
     # new_img.show()
     image_label.configure(image=new_photo)
     image_label.image = new_photo
-    # image_container = canvas.create_image(0, 0, anchor="nw", image=new_photo)
-    # canvas.itemconfig(image_container, image=new_photo)
 
 
 def removal_range(obj):
