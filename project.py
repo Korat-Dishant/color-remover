@@ -17,6 +17,10 @@ def on_canvas_click(event):
         x, y = event.x, event.y
         eyedropper = image.getpixel((x, y))
     print('eye dropper - ', eyedropper)
+    if slider1.get() == 0 and slider2.get() == 0 and slider3.get() == 0:
+        slider1.set(1)
+        slider2.set(1)
+        slider3.set(1)
     update_image(slider1.get(), slider2.get(), slider3.get())
 
 
@@ -56,12 +60,18 @@ def save_img():
     remove = removal_range({'color': eyedropper, 'range': [
                            slider1.get(), slider2.get(), slider3.get()]})
     new_img.putdata(remove_color(datas, remove))
-    file = filedialog.asksaveasfile(mode='wb', defaultextension=".png")
+    file = filedialog.asksaveasfile(
+        initialfile='untitled.png', mode='wb', defaultextension=".png")
     new_img.save(file)
 
 
-def main():
+def reset_sliders():
+    slider1.set(0)
+    slider2.set(0)
+    slider3.set(0)
 
+
+def main():
 
     root = tk.Tk()
     root.title("Color remover")
@@ -70,16 +80,15 @@ def main():
     image_label = tk.Label(root)
     image_label.grid(row=0, column=0, padx=5, pady=5)
     open_image('welcome.png')
-    global image_label
-    image_label = tk.Label(root)
-    image_label.grid(row=0, column=0, padx=5, pady=5)
-    open_image('welcome.png')
 
     open_button = tk.Button(root, text="Open Image", command=open_image)
     open_button.grid(row=1, column=0, padx=5, pady=5)
 
-    open_button = tk.Button(root, text="Save Image", command=save_img)
+    open_button = tk.Button(root, text="Reset", command=reset_sliders)
     open_button.grid(row=1, column=1, padx=5, pady=5)
+
+    open_button = tk.Button(root, text="Save Image", command=save_img)
+    open_button.grid(row=1, column=2, padx=5, pady=5)
 
     label2 = tk.Label(root, text="color removal range")
     label2.grid(row=2, column=0, padx=5, pady=2)
