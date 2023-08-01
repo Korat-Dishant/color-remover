@@ -4,7 +4,7 @@ from PIL import Image, ImageTk
 import copy
 
 
-def on_canvas_click(event):
+def on_click(event):
     global eyedropper
     if event == 'initialize':
         eyedropper = (255, 255, 255, 255)
@@ -78,7 +78,7 @@ def main():
 
     global image_label
     image_label = tk.Label(root)
-    image_label.grid(row=0, column=0, padx=5, pady=5)
+    image_label.grid(row=0, column=0,columnspan=3, padx=5, pady=5)
     open_image('welcome.png')
 
     open_button = tk.Button(root, text="Open Image", command=open_image)
@@ -91,7 +91,7 @@ def main():
     open_button.grid(row=1, column=2, padx=5, pady=5)
 
     label2 = tk.Label(root, text="color removal range")
-    label2.grid(row=2, column=0, padx=5, pady=2)
+    label2.grid(row=2, column=0,columnspan=3, padx=5, pady=2)
 
     slider1_value = tk.IntVar()
     slider2_value = tk.IntVar()
@@ -99,21 +99,22 @@ def main():
     global slider1
     slider1 = tk.Scale(root, from_=0, to=255, orient="horizontal", label="red",  variable=slider1_value,
                        command=lambda value: update_image(slider1_value.get(), slider2_value.get(), slider3_value.get()))
-    slider1.grid(row=3, column=0, padx=5, pady=5)
+    slider1.grid(row=3, column=0,columnspan=3, padx=5, pady=5)
     global slider2
     slider2 = tk.Scale(root, from_=0, to=255, orient="horizontal", label="green",  variable=slider2_value,
                        command=lambda value: update_image(slider1_value.get(), slider2_value.get(), slider3_value.get()))
-    slider2.grid(row=4, column=0, padx=5, pady=5)
+    slider2.grid(row=4, column=0, columnspan=3,padx=5, pady=5)
     global slider3
     slider3 = tk.Scale(root, from_=0, to=255, orient="horizontal", label="blue",  variable=slider3_value,
                        command=lambda value: update_image(slider1_value.get(), slider2_value.get(), slider3_value.get()))
-    slider3.grid(row=5, column=0, padx=5, pady=5)
+    slider3.grid(row=5, column=0, columnspan=3,padx=5, pady=5)
 
     # Bind the mouse click event to the canvas
-    on_canvas_click('initialize')
-    on_canvas_click('initialize')
-    image_label.bind("<Button-1>", on_canvas_click)
+    on_click('initialize')
+    on_click('initialize')
+    image_label.bind("<Button-1>", on_click)
 
+    root.resizable(True, True)
     root.mainloop()
 
 

@@ -99,14 +99,5 @@ def remove_color(datas,remove):
     
     return newData
 
-
-
-
-
-
-
-
-
-
 if __name__ == "__main__" :
     main()
