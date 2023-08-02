@@ -36,20 +36,25 @@ def open_image(*args):
         global image, photo
         image = Image.open(file_path)
         image = image.resize(new_dimensions(image))
-        image = image.resize(new_dimensions(image))
+        # image = image.resize(new_dimensions(image))
         photo = ImageTk.PhotoImage(image)
         image_label.configure(image=photo)
         image_label.image = photo
+
+#  set the new dimensions for very large images so UI feels consistent
 
 
 def new_dimensions(img):
     width = img.size[0]
     height = img.size[1]
-    max_width, max_height = 600, 600
+    max_width, max_height = 600, 400
     ratio = min(max_width / width, max_height / height)
     new_width = int(width * ratio)
     new_height = int(height * ratio)
+    # print("new dimensions = ", new_width, new_height)
     return new_width, new_height
+
+#  save images
 
 
 def save_img():
@@ -64,63 +69,19 @@ def save_img():
         initialfile='untitled.png', mode='wb', defaultextension=".png")
     new_img.save(file)
 
+#  to reset slider values
+
 
 def reset_sliders():
     slider1.set(0)
     slider2.set(0)
     slider3.set(0)
 
-
-def main():
-
-    root = tk.Tk()
-    root.title("Color remover")
-
-    global image_label
-    image_label = tk.Label(root)
-    image_label.grid(row=0, column=0,columnspan=3, padx=5, pady=5)
-    open_image('welcome.png')
-
-    open_button = tk.Button(root, text="Open Image", command=open_image)
-    open_button.grid(row=1, column=0, padx=5, pady=5)
-
-    open_button = tk.Button(root, text="Reset", command=reset_sliders)
-    open_button.grid(row=1, column=1, padx=5, pady=5)
-
-    open_button = tk.Button(root, text="Save Image", command=save_img)
-    open_button.grid(row=1, column=2, padx=5, pady=5)
-
-    label2 = tk.Label(root, text="color removal range")
-    label2.grid(row=2, column=0,columnspan=3, padx=5, pady=2)
-
-    slider1_value = tk.IntVar()
-    slider2_value = tk.IntVar()
-    slider3_value = tk.IntVar()
-    global slider1
-    slider1 = tk.Scale(root, from_=0, to=255, orient="horizontal", label="red",  variable=slider1_value,
-                       command=lambda value: update_image(slider1_value.get(), slider2_value.get(), slider3_value.get()))
-    slider1.grid(row=3, column=0,columnspan=3, padx=5, pady=5)
-    global slider2
-    slider2 = tk.Scale(root, from_=0, to=255, orient="horizontal", label="green",  variable=slider2_value,
-                       command=lambda value: update_image(slider1_value.get(), slider2_value.get(), slider3_value.get()))
-    slider2.grid(row=4, column=0, columnspan=3,padx=5, pady=5)
-    global slider3
-    slider3 = tk.Scale(root, from_=0, to=255, orient="horizontal", label="blue",  variable=slider3_value,
-                       command=lambda value: update_image(slider1_value.get(), slider2_value.get(), slider3_value.get()))
-    slider3.grid(row=5, column=0, columnspan=3,padx=5, pady=5)
-
-    # Bind the mouse click event to the canvas
-    on_click('initialize')
-    on_click('initialize')
-    image_label.bind("<Button-1>", on_click)
-
-    root.resizable(True, True)
-    root.mainloop()
+# remove range of colors given by sliders from image
 
 
 def update_image(slider1_value, slider2_value, slider3_value):
     rgba = copy.deepcopy(image)
-    # global new_img
     new_img = rgba.convert("RGBA")
     datas = new_img.getdata()
     remove = removal_range({'color': eyedropper, 'range': [
@@ -135,6 +96,7 @@ def update_image(slider1_value, slider2_value, slider3_value):
     image_label.image = new_photo
 
 
+# calculate color range
 def removal_range(obj):
     rng = []
     for i in range(3):
@@ -147,6 +109,8 @@ def removal_range(obj):
         rng.append([lower, upper])
     return rng
 
+# remve color range from image
+
 
 def remove_color(datas, remove):
     newData = []
@@ -157,6 +121,58 @@ def remove_color(datas, remove):
             newData.append(item)  # other colours remain unchanged
 
     return newData
+
+
+def main():
+
+    root = tk.Tk()
+    root.title("Color remover")
+
+    root.grid_rowconfigure(0, weight=1)
+    root.grid_columnconfigure(0, weight=1)
+    root.grid_rowconfigure(6, weight=1)
+    root.grid_columnconfigure(4, weight=1)
+
+    global image_label
+    image_label = tk.Label(root)
+    image_label.grid(row=1, column=1, columnspan=3, padx=5, pady=5)
+    open_image('welcome.png')
+
+    open_button = tk.Button(root, text="Open Image", command=open_image)
+    open_button.grid(row=2, column=1, padx=5, pady=5)
+
+    open_button = tk.Button(root, text="Reset", command=reset_sliders)
+    open_button.grid(row=2, column=2, padx=5, pady=5)
+
+    open_button = tk.Button(root, text="Save Image", command=save_img)
+    open_button.grid(row=2, column=3, padx=5, pady=5)
+
+    label2 = tk.Label(root, text="color removal range")
+    label2.grid(row=3, column=1, columnspan=3, padx=5, pady=2)
+
+    slider1_value = tk.IntVar()
+    slider2_value = tk.IntVar()
+    slider3_value = tk.IntVar()
+    global slider1
+    slider1 = tk.Scale(root, from_=0, to=255, orient="horizontal", label="red",  variable=slider1_value,
+                       command=lambda value: update_image(slider1_value.get(), slider2_value.get(), slider3_value.get()))
+    slider1.grid(row=4, column=1, columnspan=3, padx=5, pady=5)
+    global slider2
+    slider2 = tk.Scale(root, from_=0, to=255, orient="horizontal", label="green",  variable=slider2_value,
+                       command=lambda value: update_image(slider1_value.get(), slider2_value.get(), slider3_value.get()))
+    slider2.grid(row=5, column=1, columnspan=3, padx=5, pady=5)
+    global slider3
+    slider3 = tk.Scale(root, from_=0, to=255, orient="horizontal", label="blue",  variable=slider3_value,
+                       command=lambda value: update_image(slider1_value.get(), slider2_value.get(), slider3_value.get()))
+    slider3.grid(row=6, column=1, columnspan=3, padx=5, pady=5)
+
+    # mouse click event for eyedropper
+    on_click('initialize')
+    on_click('initialize')
+    image_label.bind("<Button-1>", on_click)
+
+    root.resizable(True, True)
+    root.mainloop()
 
 
 if __name__ == "__main__":
