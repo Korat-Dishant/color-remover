@@ -1,4 +1,4 @@
-from project import removal_range, new_dimensions
+from project import removal_range, new_dimensions , remove_color
 from PIL import Image
 import pytest
 
@@ -11,10 +11,11 @@ test4 = Image.open('test/test4.png')
 
 
 def test_new_dimensions():
-    assert new_dimensions(test1) == (598, 600)
-    assert new_dimensions(test2) == (600, 585)
-    assert new_dimensions(test3) == (272, 600)
+    assert new_dimensions(test1) == (398, 400)
+    assert new_dimensions(test2) == (410, 400)
+    assert new_dimensions(test3) == (181, 400) 
     assert new_dimensions(test4) == (600, 112)
+
 
 # checking for undefinded images
 
@@ -68,3 +69,17 @@ def test_removal_range_randomColor():
         [245, 255], [70, 90], [8, 10]]
     assert removal_range({'color': (255, 76, 12, 255), 'range': [1, 11, 0]}) == [
         [254, 255], [65, 87], [12, 12]]
+
+
+
+
+testrm = Image.open('test/testrm.jpg')
+test_img = testrm.convert("RGBA")
+datas = test_img.getdata()
+
+restest_img = Image.open('test/resuntitled.png')
+resdatas = list(restest_img.getdata())
+
+
+def test_remove_color():
+    assert remove_color(datas, [[0, 1], [0, 1], [0, 1]] ) == resdatas
